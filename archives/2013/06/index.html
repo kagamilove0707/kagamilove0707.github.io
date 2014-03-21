@@ -1,0 +1,298 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Archives: 2013/6 | Moon? Shadow!</title>
+  <meta name="author" content="kagamilove0707">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+  <meta property="og:site_name" content="Moon? Shadow!"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="atom.xml" title="Moon? Shadow!" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-49235568-1', 'kagamilove0707.github.io');
+  ga('send', 'pageview');
+</script>
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">Moon? Shadow!</a></h1>
+  <h2><a href="/">kagamilove0707&#39;s blog</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+      <li><a href="/profile">Profile</a></li>
+    
+      <li><a href="https://github.com/kagamilove0707">GitHub</a></li>
+    
+      <li><a href="https://twitter.com/kagamilove0707">Twitter</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper">
+<h2 class="archive-title">2013/6</h2>
+
+
+  
+    <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-06-22T15:00:00.000Z"><a href="/programming/2013/06/23/add-safe-list/">6月 23 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/programming/2013/06/23/add-safe-list/">型安全なリストに対する補足とGADTsの話ですー＞ω＜</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <div class="warning"><p>この記事を改めて書き直しましたのです＞ω＜</p>
+<p>できれば、<a href="/programming/2014/02/21/gadts-and-dependent-type/">こちらの記事</a>を見てもらいたいのですー＞ω＜</p>
+</div>
+
+
+<p>お久しぶりですー＞ω＜　気がついたら一ヶ月も経っていてしまいました(´・ω・｀)</p>
+<p>前回の記事で実際に動かすことの出来ない<code>tail</code>を公開してしまったので、この記事はその謝罪と説明と補足になります(｀・ω・´)</p>
+<h2 id="前回の記事で問題だったところ(・ω・?">前回の記事で問題だったところ(・ω・?</h2>
+<p>問題だったのは、具体的にはここですm9（・∀・）ﾋﾞｼｯ!!</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+</pre></td><td class="code"><pre><span class="title">tail</span> :: <span class="type">SafeList</span> <span class="type">NonEmpty</span> a -&gt; <span class="type">SafeList</span> x a
+<span class="title">tail</span> (<span class="type">Cons</span> _ xs) = xs
+</pre></td></tr></table></figure>
+
+<p>この<code>tail</code>は残念なことに型エラーが出て動かないのです(´・ω・｀)</p>
+<p>なぜなのでしょうか？？</p>
+<p>出てきたエラーメッセージを見てみます＞＜</p>
+<pre><code>SafeList_by_PhantomType.hs:
+    Couldn<span class="string">'t match type `y'</span> <span class="keyword">with</span> `x<span class="string">'
+      `y'</span> <span class="keyword">is</span> a rigid <span class="keyword">type</span> variable bound <span class="keyword">by</span>
+          a pattern <span class="keyword">with</span> <span class="function"><span class="keyword">constructor</span>
+            <span class="title">Cons</span> :</span>: forall x a y. a -&gt; SafeList y a -&gt; SafeList x a,
+          <span class="keyword">in</span> an equation <span class="keyword">for</span> `tail<span class="string">'
+          at SafeList_by_PhantomType.hs:26:7
+      `x'</span> <span class="keyword">is</span> a rigid <span class="keyword">type</span> variable bound <span class="keyword">by</span>
+          the <span class="keyword">type</span> signature <span class="keyword">for</span> tail :: SafeList NonEmpty a -&gt; SafeList x a
+          at SafeList_by_PhantomType.hs:<span class="number">26</span>:<span class="number">1</span>
+    Expected <span class="keyword">type</span>: SafeList x a
+      Actual <span class="keyword">type</span>: SafeList y a
+    <span class="keyword">In</span> the expression: xs
+    <span class="keyword">In</span> an equation <span class="keyword">for</span> `tail<span class="string">': tail (Cons _ xs) = xs</span>
+</code></pre><p>長いエラーですー(((ﾟωﾟ)))</p>
+<p>ゆっくりと見ていくと、<code>SafeList</code>のデータコンストラクタ宣言の存在型の<code>y</code>と<code>tail</code>の型に現れる<code>x</code>が同じものだと確証を得られない、というエラーのようです＞＜</p>
+<p>このエラーを無くすにはどうしたらいいのでしょう？？</p>
+<h2 id="というわけで、作りなおしてみますですー＞ω＜">というわけで、作りなおしてみますですー＞ω＜</h2>
+<p>設計そのものが間違っていたのです(｀・ω・´)</p>
+<p>前回の記事では、Phantom Typeを主張するためにあえて普通のデータ型を使って定義しましたが、ここでは簡潔と単純のためにGADTs（Generalized Algebraic Data Types）を使って定義してみますです＞ω＜</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="code"><pre><span class="pragma">{-# LANGUAGE GADTs #-}</span>
+<span class="module"><span class="keyword">module</span> Main <span class="keyword">where</span></span>
+
+<span class="typedef"><span class="keyword">data</span> <span class="type">Empty</span></span>
+<span class="typedef"><span class="keyword">data</span> <span class="type">NonEmpty</span> x</span>
+
+<span class="infix"><span class="keyword">infixr</span> <span class="number">5</span> :::</span>
+<span class="typedef"><span class="keyword">data</span> <span class="type">SafeList</span> x a where</span>
+  <span class="type">Nil</span> :: <span class="type">SafeList</span> <span class="type">Empty</span> a
+  (:::) :: a -&gt; <span class="type">SafeList</span> x a -&gt; <span class="type">SafeList</span> (<span class="type">NonEmpty</span> x) a
+</pre></td></tr></table></figure>
+
+<p><code>data</code>のあとに<code>where</code>があったり、関数の型宣言みたいだったりしますが、これがGADTsというものですー＞ω＜</p>
+<p>また、<code>NonEmpty</code>の定義も微妙に変わっていて、型を一つ受け取るようになっています＞＜　（←じつはGADTs云々よりもこっちの方が重要だったりしますです＞＜</p>
+<p>で、こうすると、<code>head</code>と<code>tail</code>はこんな風に書けますです＞ω＜</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+</pre></td><td class="code"><pre><span class="title">head</span> :: <span class="type">SafeList</span> (<span class="type">NonEmpty</span> x) a -&gt; a
+<span class="title">head</span> (<span class="type">Cons</span> x _ ) = x
+
+<span class="title">tail</span> :: <span class="type">SafeList</span> (<span class="type">NonEmpty</span> x) a -&gt; <span class="type">SafeList</span> x a
+<span class="title">tail</span> (<span class="type">Cons</span> _ xs) = xs
+</pre></td></tr></table></figure>
+
+<p>こんな風、というか前回と型が変わっただけで中身はそのままでしたです＞＜</p>
+<p>これなら、</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+</pre></td><td class="code"><pre><span class="title">main</span> = <span class="keyword">do</span>
+  print $ head (tail (tail (<span class="string">"＞＜"</span> ::: <span class="string">"＞＜"</span> ::: <span class="string">"＞ω＜"</span> ::: <span class="type">Nil</span>)))
+</pre></td></tr></table></figure>
+
+<p>という風に<code>tail</code>を２回適用してから<code>head</code>しても上手くいきますですー＞ω＜</p>
+<p><code>map</code>関数だって定義できます＞＜</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+3
+</pre></td><td class="code"><pre><span class="title">map</span> :: (a -&gt; b) -&gt; <span class="type">SafeList</span> x a -&gt; <span class="type">SafeList</span> x b
+<span class="title">map</span> _ <span class="type">Nil</span> = <span class="type">Nil</span>
+<span class="title">map</span> f (x ::: xs) = f x ::: map f xs
+</pre></td></tr></table></figure>
+
+<p>こんな感じでどうでしょうか？</p>
+<h2 id="思うこと(｀・ω・´)">思うこと(｀・ω・´)</h2>
+<p>急いで書いた記事なので、文章がややおかしかったり説明不足なところがあると思いますが、許してもらえると嬉しいです＞＜</p>
+<p>あと、最初の<code>tail</code>がなぜエラーになったのか実はあまりよく分かっていないので、もう少し深く考えてみたいと思います＞＜</p>
+<p>ではでは、ありがとうございましたですっ＞ω＜</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  
+
+  <nav id="pagination">
+  
+  
+  <div class="clearfix"></div>
+</nav>
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:kagamilove0707.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">Recent Posts</h3>
+  <ul class="entry">
+    
+      <li>
+        <a href="/everyday/2014/03/21/hello-new-blog-world/">ブログを作り直したのです(｀・ω・´)</a>
+      </li>
+    
+      <li>
+        <a href="/programming/2014/02/21/gadts-and-dependent-type/">型安全なリストを作るのです(｀・ω・´) ～ その2、GADTsと依存型＞ω＜</a>
+      </li>
+    
+      <li>
+        <a href="/programming/2014/02/20/about-phantom-type/">型安全なリストを作るのです(｀・ω・´) ～ その1、Phantom Type（幽霊型）入門ですー＞ω＜</a>
+      </li>
+    
+      <li>
+        <a href="/programming/2013/06/23/add-safe-list/">型安全なリストに対する補足とGADTsの話ですー＞ω＜</a>
+      </li>
+    
+      <li>
+        <a href="/programming/2013/05/30/about-phantom-type/">Phantom Type（幽霊型）入門ですー＞ω＜</a>
+      </li>
+    
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">Categories</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/everyday/">everyday</a><small>1</small></li>
+  
+    <li><a href="/categories/programming/">programming</a><small>4</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">Tags</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/Haskell/">Haskell</a><small>4</small></li>
+  
+    <li><a href="/tags/Hexo/">Hexo</a><small>1</small></li>
+  
+    <li><a href="/tags/Node.js/">Node.js</a><small>1</small></li>
+  
+    <li><a href="/tags/TypeSafe/">TypeSafe</a><small>2</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 kagamilove0707
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+<script type="text/javascript">
+var disqus_shortname = 'moonshadow';
+
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+</script>
+
+
+
+
+</body>
+</html>

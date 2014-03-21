@@ -1,0 +1,425 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Phantom Type（幽霊型）入門ですー＞ω＜ | Moon? Shadow!</title>
+  <meta name="author" content="kagamilove0707">
+  
+  <meta name="description" content="この記事を改めて書き直しましたのです＞ω＜
+できれば、こちらの記事を見てもらいたいのですー＞ω＜
+
+
+
+あいさつ＞ω＜
+みなさん、お久しぶりです、月影です＞ω＜
+「いつかブログを書こう」と思っていたら、なんと一週間もたってしまいました(ﾟдﾟ)！
+「いつか」なんて考えていちゃいけませんね、「今でしょ">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Phantom Type（幽霊型）入門ですー＞ω＜"/>
+  <meta property="og:site_name" content="Moon? Shadow!"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="atom.xml" title="Moon? Shadow!" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-49235568-1', 'kagamilove0707.github.io');
+  ga('send', 'pageview');
+</script>
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">Moon? Shadow!</a></h1>
+  <h2><a href="/">kagamilove0707&#39;s blog</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+      <li><a href="/profile">Profile</a></li>
+    
+      <li><a href="https://github.com/kagamilove0707">GitHub</a></li>
+    
+      <li><a href="https://twitter.com/kagamilove0707">Twitter</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-05-30T11:20:20.000Z"><a href="/programming/2013/05/30/about-phantom-type/">5月 30 2013</a></time>
+      
+      
+  
+    <h1 class="title">Phantom Type（幽霊型）入門ですー＞ω＜</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <div class="warning"><p>この記事を改めて書き直しましたのです＞ω＜</p>
+<p>できれば、<a href="/programming/2014/02/20/about-phantom-type/">こちらの記事</a>を見てもらいたいのですー＞ω＜</p>
+</div>
+
+
+<h2 id="あいさつ＞ω＜">あいさつ＞ω＜</h2>
+<p>みなさん、お久しぶりです、月影です＞ω＜</p>
+<p>「いつかブログを書こう」と思っていたら、なんと一週間もたってしまいました(ﾟдﾟ)！</p>
+<p>「いつか」なんて考えていちゃいけませんね、「今でしょ！」の精神でいかなくちゃです＞ω＜</p>
+<p>というわけで、今回はPhantom Typeについてのお話です＞ω＜</p>
+<h2 id="Phantom_Typeってなんです(・ω・?">Phantom Typeってなんです(・ω・?</h2>
+<p>Phantom Type…、幽霊型…</p>
+<p>みなさん、ご存知でしょうか(・ω・?</p>
+<p>わたしは昔に何度かTwitterで見かけたので、名前だけは知っていました(｀・ω・´)</p>
+<p>かっこいい名前だな―って感じです＞ω＜　ファントム・タイプ！！！</p>
+<p>で、ちょっと面白そうな香りがしたので調べてみましたのです＞ω＜</p>
+<p>Phantom Typeさん、名前は仰々しいですが、その実態は非常に単純なものでした＞ω＜</p>
+<p>Phantom Typeとはつまり、こういうことです＞ω＜</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+</pre></td><td class="code"><pre><span class="typedef"><span class="keyword">data</span> <span class="type">PhantomType</span> x a = <span class="type">PhantomType</span> a</span>
+</pre></td></tr></table></figure>
+
+<p>え(・ω・?　どういこと(・ω・?</p>
+<p>これだけでは分かりにくいかもしれませんです(´・ω・｀)<br>ですがよく見てください。<code>PhantomType</code>型は二つの型変数を取りますが、右辺のデータ構築子では一つの型しか使っていません(ﾟдﾟ)！</p>
+<p>実は、この <strong>使われていない型</strong> こそがPhantom Typeなのです＞ω＜</p>
+<p>って、これじゃPhantom Typeの何がすごいのか全然分かりませんね(´･ω･｀)</p>
+<p>というわけで、Phantom Typeのすごさを伝えるため型安全な<code>head</code>と<code>tail</code>を作ってみたいと思いますです＞ω＜</p>
+<h2 id="型安全？？_どういう意味です(・ω・?">型安全？？　どういう意味です(・ω・?</h2>
+<p>まずは、この話からしなければいけませんね(｀・ω・´)</p>
+<p>Haskellの<code>Prelude</code>のとある関数には欠陥があります(｀・ω・´)　さて、それはどの関数でしょうか？</p>
+<p>答えは<code>head</code>と<code>tail</code>です＞ω＜　ではなぜこの二つは欠陥品なのでしょう…(・ω・?</p>
+<p>それは、このようなコードを書いてみれば分かりますです＞ω＜</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+3
+</pre></td><td class="code"><pre><span class="title">main</span> = <span class="keyword">do</span>
+  print $ head []
+  print $ tail []
+</pre></td></tr></table></figure>
+
+<p><strong><code>head</code>の型</strong> は<code>[a] -&gt; a</code>、<strong><code>tail</code>の型</strong> は<code>[a] -&gt; [a]</code>なので、コンパイルは通ります＞ω＜　しかし、実行してみると…</p>
+<pre><code>*** <span class="keyword">Exception</span>: Prelude.head: <span class="keyword">empty</span> <span class="keyword">list</span>
+</code></pre><p>こんなものが表示されてしまいましたです＞＜;</p>
+<p>よくよく考えれば当然ですね…。空のリストに先頭も末尾もありませんです…＞＜;;</p>
+<p>そう考えると、<code>head</code>や<code>tail</code>の型は<code>Maybe</code>で包むべきであるように感じますです。しかし、ちょっと考えてみてください。一々<code>head</code>や<code>tail</code>する度に、<code>case of</code>と括ったり<code>maybe</code>を使って値を取り出さなければいけない世界を(ﾟдﾟ)！</p>
+<p>煩わしいですよね？？</p>
+<p>そこで、 <strong>型安全</strong> という言葉が出てきますです＞ω＜</p>
+<p><code>head</code>や<code>tail</code>では空のリストを <strong>型レベル</strong> で受け取らないようにする――つまり、コンパイル時にエラーにしてしまおうという考えです＞ω＜</p>
+<p>そんなことHaskellで出来るのか！？</p>
+<p>出来るんです、そう、Phantom Typeならね</p>
+<h2 id="それでは、型安全な<code>head</code>と<code>tail</code>の実装ですー＞ω＜">それでは、型安全な<code>head</code>と<code>tail</code>の実装ですー＞ω＜</h2>
+<p>では早速、型安全な操作のできるリスト<code>SafeList</code>を定義しますです＞ω＜</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="code"><pre><span class="pragma">{-# LANGUAGE ExistentialQuantification #-}</span>
+<span class="module"><span class="keyword">module</span> Main <span class="keyword">where</span></span>
+<span class="import"><span class="keyword">import</span> Prelude <span class="keyword">hiding</span> <span class="container">(<span class="title">head</span>, <span class="title">tail</span>)</span></span>
+
+<span class="typedef"><span class="keyword">data</span> <span class="type">Empty</span></span>
+<span class="typedef"><span class="keyword">data</span> <span class="type">NonEmpty</span></span>
+
+<span class="typedef"><span class="keyword">data</span> <span class="type">SafeList</span> x a = forall y. <span class="type">Cons</span> a <span class="container">(<span class="type">SafeList</span> <span class="title">y</span> <span class="title">a</span>)</span></span>
+                             |<span class="type">Nil</span> <span class="keyword">deriving</span>(<span class="type">Show</span>)
+</pre></td></tr></table></figure>
+
+<p>最初の一行目は言語プラグマで、データ構築子などの中で<code>forall</code>を使うときに必要です＞ω＜</p>
+<p>三行目で、これからオーバライドする予定の<code>Prelude</code>の<code>head</code>と<code>tail</code>を隠しています＞ω＜</p>
+<p>五、六行目では右辺のないデータ型を定義しています。これはEmpty Data Declsといって、データ構築子のない型を宣言できます。これについてはあとで話しますです＞ω＜</p>
+<p>八行目、ようやく<code>SafeList</code>の定義です＞ω＜</p>
+<p>最初の<code>forall y. Cons a (SafeList y a)</code>という型、再帰的になっていてリストを表しています。また、型変数<code>x</code>が一度も出てきてないことにも注目です＞ω＜　（<code>forall y.</code>というのは英単語の通り、任意の型変数<code>y</code>が存在することを表しています）</p>
+<p>次に、<code>Nil</code>。これは単純にリストの終端ですー＞ω＜</p>
+<p>ひと通りの定義をみてきました(｀・ω・´)　しかし、これだけでは型安全なリストは作りにくいです＞＜;</p>
+<p>なので次の <em>補助関数</em> を定義しますです＞ω＜</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+</pre></td><td class="code"><pre><span class="title">nil</span> :: <span class="type">SafeList</span> <span class="type">Empty</span> a
+<span class="title">nil</span> = <span class="type">Nil</span>
+
+<span class="title">cons</span> :: a -&gt; <span class="type">SafeList</span> x a -&gt; <span class="type">SafeList</span> <span class="type">NonEmpty</span> a
+<span class="title">cons</span> x xs = <span class="type">Cons</span> x xs
+</pre></td></tr></table></figure>
+
+<p>型に注目です＞ω＜　わたしが言えることじゃありませんが、Haskellのコードを見た時、ぱっと型を確認する癖をつけておくといいと思いますです＞ω＜</p>
+<p>で、その型についてです＞ω＜</p>
+<p><code>nil</code>と<code>cons</code>、その返す型をよく見比べてみてくださいです。</p>
+<p>気づきましたか？？　そう、返される型が違うのです(ﾟдﾟ)！</p>
+<p><code>nil</code>は<code>SafeList Empty a</code>、<code>cons</code>は<code>SafeList NonEmpty a</code>と。</p>
+<p>このとき、<code>Empty</code>と<code>NonEmpty</code>は<code>SafeList</code>の状態を表す <strong>タグ</strong> のようになっていますです＞ω＜</p>
+<p>空のリストとそうでないリストで型が違う――という、型安全なリストを実装するのにうってつけな性質の持ち主たちですー＞ω＜</p>
+<p>これで、<code>Empty</code>と<code>NonEmpty</code>がEmpty Data Declsされていた理由や、<code>foall y. Cons a (SafeList y a)</code>という型の理由も分かったずです(｀・ω・´)</p>
+<p>リストが空かどうかを表す <strong>タグ</strong> である型が実体化できる必要はないですし、、もし<code>Cons a (SafeList x a)</code>のような型だったら<code>Safe NonEmpty a</code>が無限に終わらないリストになってしまうのです(｀・ω・´)</p>
+<p>また、この <strong>タグ</strong> はコンパイル時には意味がありますですが実行時に消えてしまいますです。この、コンパイル時にゆらりと現れて実行時には消えている、というふわふわした感覚がPhantom――幽霊と言われる所以なのではとわたしは思いますです＞ω＜</p>
+<p>それではついに、型安全な<code>head</code>と<code>tail</code>を実装しますです＞ω＜</p>
+<div class="error"><p><ins>6/22追記 (このtail関数は動きません。以下のtail関数に対する記述も嘘になります。すみませんです＞＜)</ins></p>
+</div>
+
+
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+</pre></td><td class="code"><pre><span class="title">head</span>  :: <span class="type">SafeList</span> <span class="type">NonEmpty</span> a -&gt; a
+<span class="title">head</span> (<span class="type">Cons</span> x _) = x
+
+<span class="comment">-- tail :: SafeList NonEmpty a -&gt; SafeList x a</span>
+<span class="comment">-- tail (Cons _ xs) = xs</span>
+</pre></td></tr></table></figure>
+
+<p>できましたー＞ω＜</p>
+<p><code>head</code>も<code>tail</code>も<code>SafeList NonEmpty a</code>――空でないリストを受け取るようになっていて、型安全であることが分かりますです＞ω＜</p>
+<p>ひと通り出来上がったので、これが本当に型安全であるのか試してみましょー＞ω＜</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+</pre></td><td class="code"><pre><span class="title">main</span> :: <span class="type">IO</span> ()
+<span class="title">main</span> = <span class="keyword">do</span>
+  print $ head (cons <span class="string">"＞ω＜"</span> nil) <span class="comment">-- これはOKですー＞ω＜</span>
+  print $ head nil <span class="comment">-- これはコンパイルエラーです(｀・ω・´)</span>
+</pre></td></tr></table></figure>
+
+<p>ここまでのコードを、まとめて<code>ghc</code>ででも実行してみますですー＞ω＜</p>
+<pre><code>SafeList_by_PhantomType.hs:
+    Couldn<span class="string">'t match expected type `NonEmpty'</span> <span class="keyword">with</span> actual <span class="class"><span class="keyword">type</span> `<span class="title">Empty</span>'</span>
+    Expected <span class="class"><span class="keyword">type</span>: <span class="title">SafeList</span> <span class="title">NonEmpty</span> <span class="title">a0</span></span>
+      Actual <span class="class"><span class="keyword">type</span>: <span class="title">SafeList</span> <span class="title">Empty</span> <span class="title">a0</span></span>
+    In the first argument <span class="keyword">of</span> `head<span class="string">', namely `nil'</span>
+    In the second argument <span class="keyword">of</span> `($)<span class="string">', namely `head nil'</span>
+</code></pre><p>おおおおお＞ω＜！</p>
+<p>ちゃんとコンパイルエラーになりましたです＞ω＜</p>
+<p>Phantom Typeを使って型安全な<code>head</code>と<code>tail</code>が実装できましたのですー＞ω＜</p>
+<h2 id="ところで、型ってなんです(・ω・?">ところで、型ってなんです(・ω・?</h2>
+<p>少し、Haskellらしく抽象的な話をしますです＞ω＜</p>
+<p>抽象的、と言っても圏論が絡んでくる話のように難しくはないので安心してくださいです＞ω＜</p>
+<p>今回の記事でわたしは、 <strong>型</strong> という言葉を重視して使ってきたつもりです。</p>
+<p>では、その型とは一体何だったのでしょうか？？</p>
+<p>コンパイルの時に注意してくる面倒くさい奴？？　――それも、きっと間違いではないです＞ω＜</p>
+<p>ですが、ただ厄介と一括りに囲って丸めてしまうのではなく、もう少し考えを進めてみてくださいです＞ω＜</p>
+<p>話が変わりますが、 <em>契約による設計(Design by Contract : DbC)</em> という考え方がありますです。</p>
+<p>これはプログラムの中に契約（引数はこういう値にしなさいー、返り値はこうじゃなきゃダメだぞ！）というものを設定して、守らなければ開発時はプログラムを即時に失敗させる、という開発技法のことです＞ω＜</p>
+<p>契約を守らなければ即時に失敗させる――これって、 <strong>型</strong> とコンパイルにすごく似ていませんか？？</p>
+<p>契約は守らなければプログラムが失敗する、型は守らなければコンパイルに失敗する。</p>
+<p>見事な対称性ですー＞ω＜</p>
+<p>つまり、わたしが言いたいのはこういうことになりますです＞ω＜</p>
+<p><strong>型は、プログラムの最大の契約だ！！</strong></p>
+<p>今回は <strong>型レベル</strong> で <strong>契約</strong> することで空リストに対する<code>head</code>や<code>tail</code>というバグをコンパイル時に見つけられるようにしました。</p>
+<p>同じように、他のことでも <strong>型レベル</strong> で <strong>契約</strong> を結ぶことでもっとたくさんバグをコンパイル時に見つけられるかもしれません。</p>
+<p>これは、とても強固なソフトウェアの開発につながるのではないかと思いますです＞ω＜</p>
+<h2 id="終わりに(｀・ω・‘)">終わりに(｀・ω・‘)</h2>
+<p>みなさん、こんな長い記事に付き合っていただきありがとうございますです＞ω＜</p>
+<p>この記事を読んで、<strong>型</strong> がコンパイルを邪魔するいじわるさんではないことを分かってもらえたならわたしとしては本望です＞ω＜</p>
+<p>また、この記事を書いたのはまだまだHaskell力の未熟な月影ですので、どこか間違ってるかもしれないです(´・ω・｀)</p>
+<p>間違っているところを見つけた時はそっと教えて下さいm(_ _)m</p>
+<p>本当の最後に、この記事のアイデアとなった型安全な<code>head</code>と<code>tail</code>を考えている時にTwitterで色々教えてくださった<a href="http://twitter.com/#!/func_hs" target="_blank">@func_hs</a>さん、<a href="http://twitter.com/#!/fumieval" target="_blank">@fumieval</a>さん、分かりやすい<a href="http://www.slideshare.net/maedaunderscore/phatom-type-14612078" target="_blank">ScalaでのPhantom Typeのスライド</a>を公開している<a href="http://twitter.com/#!/maeda_" target="_blank">@maeda_</a>、<a href="http://d.hatena.ne.jp/faith_and_brave/20111201/1322718742" target="_blank">GADTsの記事</a>ですがものすごく参考になった<a href="https://twitter.com/#!/cpp_akira" target="_blank">@cpp_akira</a>さん、その他どこかでわたしの記事に関わっているみなさん、この記事を読んでくださったみなさんに最大限の感謝を！！</p>
+<h2 id="おまけですー＞ω＜">おまけですー＞ω＜</h2>
+<p>どこかに書こうと思って書きどころを逃したものですー＞ω＜</p>
+<h3 id="参考記事">参考記事</h3>
+<p>上に挙げた二つと、Haskell Wikiにある<a href="http://www.haskell.org/haskellwiki/Phantom_type" target="_blank">Phantom Type</a>のページですー＞ω＜</p>
+<h3 id="GADTについて">GADTについて</h3>
+<p>GHCには一般化代数データ型という拡張があり、今回作った<code>nil</code>、<code>cons</code>と同様のことを</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+</pre></td><td class="code"><pre><span class="typedef"><span class="keyword">data</span> <span class="type">Empty</span></span>
+<span class="typedef"><span class="keyword">data</span> <span class="type">NonEmpty</span></span>
+
+<span class="typedef"><span class="keyword">data</span> <span class="type">SafeList</span> x a where</span>
+  <span class="type">Nil</span>  :: <span class="type">SafeList</span> <span class="type">Emoty</span> a
+  <span class="type">Cons</span> :: a -&gt; <span class="type">SafeList</span> y a -&gt; <span class="type">SafeList</span> <span class="type">NonEmpty</span> a
+</pre></td></tr></table></figure>
+
+<p>のようにデータ構築子の中に隠蔽して書くことができます。</p>
+<p>これの方が <strong>抜け道がなく</strong> さらに安全なので、通常はこちらを用いたほうがいいかと思いますです―＞ω＜</p>
+<p>詳しくは上に挙げた@cpp_akiraさんの記事を参照してくださいです＞ω＜</p>
+<h3 id="他の言語について">他の言語について</h3>
+<p>Phantom Typeは、Haskellに限らず、ScalaやOCamlといった型付きの関数型言語でも使えるテクニックですー＞ω＜</p>
+<p>それにC++やD言語でもテンプレートを使えば出来るはずですー＞ω＜</p>
+<p>Javaはちょっと自信ありません(´・ω・｀;)　でもScalaで出来るのだからできそうな気もしますです＞ω＜</p>
+<p>これで、ソフトウェア開発の可能性が少し広がったのでは？？</p>
+<p>では、型を守ってバグの無いプログラミングライフを、ですー＞ω＜</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/programming/">programming</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/Haskell/">Haskell</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">Comments</h1>
+
+  
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:kagamilove0707.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">Recent Posts</h3>
+  <ul class="entry">
+    
+      <li>
+        <a href="/everyday/2014/03/21/hello-new-blog-world/">ブログを作り直したのです(｀・ω・´)</a>
+      </li>
+    
+      <li>
+        <a href="/programming/2014/02/21/gadts-and-dependent-type/">型安全なリストを作るのです(｀・ω・´) ～ その2、GADTsと依存型＞ω＜</a>
+      </li>
+    
+      <li>
+        <a href="/programming/2014/02/20/about-phantom-type/">型安全なリストを作るのです(｀・ω・´) ～ その1、Phantom Type（幽霊型）入門ですー＞ω＜</a>
+      </li>
+    
+      <li>
+        <a href="/programming/2013/06/23/add-safe-list/">型安全なリストに対する補足とGADTsの話ですー＞ω＜</a>
+      </li>
+    
+      <li>
+        <a href="/programming/2013/05/30/about-phantom-type/">Phantom Type（幽霊型）入門ですー＞ω＜</a>
+      </li>
+    
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">Categories</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/everyday/">everyday</a><small>1</small></li>
+  
+    <li><a href="/categories/programming/">programming</a><small>4</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">Tags</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/Haskell/">Haskell</a><small>4</small></li>
+  
+    <li><a href="/tags/Hexo/">Hexo</a><small>1</small></li>
+  
+    <li><a href="/tags/Node.js/">Node.js</a><small>1</small></li>
+  
+    <li><a href="/tags/TypeSafe/">TypeSafe</a><small>2</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 kagamilove0707
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+<script type="text/javascript">
+var disqus_shortname = 'moonshadow';
+
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+</script>
+
+
+
+
+</body>
+</html>

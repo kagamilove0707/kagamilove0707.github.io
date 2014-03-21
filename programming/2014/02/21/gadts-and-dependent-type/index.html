@@ -1,0 +1,628 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>型安全なリストを作るのです(｀・ω・´) ～ その2、GADTsと依存型＞ω＜ | Moon? Shadow!</title>
+  <meta name="author" content="kagamilove0707">
+  
+  <meta name="description" content="前回のあらすじですー＞ω＜
+Phantom Typeを駆使して空リストに適用しようとすると、コンパイル時にエラーを吐く型安全なリストを定義したのです(｀・ω・´)
+しかし、tailはよく分からないエラーに阻まれて定義することができなかったのです……＞＜;
+今回は型安全なtailはどうやったら実現可能">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="型安全なリストを作るのです(｀・ω・´) ～ その2、GADTsと依存型＞ω＜"/>
+  <meta property="og:site_name" content="Moon? Shadow!"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="atom.xml" title="Moon? Shadow!" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-49235568-1', 'kagamilove0707.github.io');
+  ga('send', 'pageview');
+</script>
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">Moon? Shadow!</a></h1>
+  <h2><a href="/">kagamilove0707&#39;s blog</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+      <li><a href="/profile">Profile</a></li>
+    
+      <li><a href="https://github.com/kagamilove0707">GitHub</a></li>
+    
+      <li><a href="https://twitter.com/kagamilove0707">Twitter</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-02-21T11:20:20.000Z"><a href="/programming/2014/02/21/gadts-and-dependent-type/">2月 21 2014</a></time>
+      
+      
+  
+    <h1 class="title">型安全なリストを作るのです(｀・ω・´) ～ その2、GADTsと依存型＞ω＜</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h2 id="前回のあらすじですー＞ω＜">前回のあらすじですー＞ω＜</h2>
+<p>Phantom Typeを駆使して空リストに適用しようとすると、コンパイル時にエラーを吐く型安全なリストを定義したのです(｀・ω・´)</p>
+<p>しかし、<code>tail</code>はよく分からないエラーに阻まれて定義することができなかったのです……＞＜;</p>
+<p>今回は型安全な<code>tail</code>はどうやったら実現可能か考えてみたいと思いますです＞ω＜</p>
+<h2 id="前回のエラーをもう一度確認してみますです。">前回のエラーをもう一度確認してみますです。</h2>
+<p>前回のソースコードとエラーを再掲しておきますです(｀・ω・´)</p>
+<figure class="highlight haskell"><figcaption><span>SafeList_by_PhantomType.hs</span></figcaption><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+</pre></td><td class="code"><pre><span class="pragma">{-# LANGUAGE ExistentialQuantification #-}</span>
+<span class="module"><span class="keyword">module</span> Main <span class="keyword">where</span></span>
+<span class="import"><span class="keyword">import</span> Prelude <span class="keyword">hiding</span> <span class="container">(<span class="title">head</span>, <span class="title">tail</span>)</span></span>
+
+<span class="typedef"><span class="keyword">data</span> <span class="type">Empty</span></span>
+<span class="typedef"><span class="keyword">data</span> <span class="type">NonEmpty</span></span>
+
+<span class="typedef"><span class="keyword">data</span> <span class="type">SafeList</span> x a = forall y. <span class="type">Cons</span> a <span class="container">(<span class="type">SafeList</span> <span class="title">y</span> <span class="title">a</span>)</span></span>
+                             |<span class="type">Nil</span>
+
+<span class="title">nil</span> :: <span class="type">SafeList</span> <span class="type">Empty</span> a
+<span class="title">nil</span> = <span class="type">Nil</span>
+
+<span class="title">cons</span> :: a -&gt; <span class="type">SafeList</span> x a -&gt; <span class="type">SafeList</span> <span class="type">NonEmpty</span> a
+<span class="title">cons</span> x xs = <span class="type">Cons</span> x xs
+
+<span class="title">head</span>  :: <span class="type">SafeList</span> <span class="type">NonEmpty</span> a -&gt; a
+<span class="title">head</span> (<span class="type">Cons</span> x _) = x
+
+<span class="title">tail</span> :: <span class="type">SafeList</span> <span class="type">NonEmpty</span> a -&gt; <span class="type">SafeList</span> x a
+<span class="title">tail</span> (<span class="type">Cons</span> _ xs) = xs
+
+<span class="title">main</span> :: <span class="type">IO</span> ()
+<span class="title">main</span> = <span class="keyword">do</span>
+  print $ head (cons <span class="string">"＞ω＜"</span> nil) <span class="comment">-- これはOKですー＞ω＜</span>
+<span class="comment">--  print $ head nil -- これはコンパイルエラーです(｀・ω・´)</span>
+</pre></td></tr></table></figure>
+
+
+<pre><code>SafeList_by_PhantomType.hs:<span class="number">21</span>:<span class="number">20</span>:
+    Couldn<span class="string">'t match type `y'</span> <span class="keyword">with</span> `x<span class="string">'
+      `y'</span> <span class="keyword">is</span> a rigid <span class="keyword">type</span> variable bound <span class="keyword">by</span>
+          a pattern <span class="keyword">with</span> <span class="function"><span class="keyword">constructor</span>
+            <span class="title">Cons</span> :</span>: forall x a y. a -&gt; SafeList y a -&gt; SafeList x a,
+          <span class="keyword">in</span> an equation <span class="keyword">for</span> `tail<span class="string">'
+          at SafeList_by_PhantomType.hs:21:7
+      `x'</span> <span class="keyword">is</span> a rigid <span class="keyword">type</span> variable bound <span class="keyword">by</span>
+          the <span class="keyword">type</span> signature <span class="keyword">for</span> tail :: SafeList NonEmpty a -&gt; SafeList x a
+          at SafeList_by_PhantomType.hs:<span class="number">20</span>:<span class="number">9</span>
+    Expected <span class="keyword">type</span>: SafeList x a
+      Actual <span class="keyword">type</span>: SafeList y a
+    <span class="keyword">In</span> the expression: xs
+    <span class="keyword">In</span> an equation <span class="keyword">for</span> `tail<span class="string">': tail (Cons _ xs) = xs</span>
+</code></pre><h2 id="では早速このエラーを紐解いていくのですー＞ω＜">では早速このエラーを紐解いていくのですー＞ω＜</h2>
+<p>エラーメッセージをよくよく観察してみますです。</p>
+<p>すると、とりあえず21行目の20文字目でエラーが起きていることが分かりますです(｀・ω・´)</p>
+<p>(↑当たり前すぎるかもしれませんが、原因の分からないバグというのは大抵そういうところに潜むものなのではないかと思いますです)</p>
+<p>その21行目とは、ここのことになります。</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+</pre></td><td class="code"><pre><span class="title">tail</span> (<span class="type">Cons</span> _ xs) = xs
+</pre></td></tr></table></figure>
+
+<p>で、更に20文字目というと、ちょうど右辺の<code>xs</code>のことになりますです(｀・ω・´)</p>
+<p>さて、この<code>xs</code>の型は、</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+</pre></td><td class="code"><pre><span class="title">forall</span> y. <span class="type">SafeList</span> y a
+</pre></td></tr></table></figure>
+
+<p>になりますです(｀・ω・´)</p>
+<p>……みなさん、少し思い出してみて欲しいのです(｀・ω・´)</p>
+<p>この<code>forall</code>がどこにあったかを</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+</pre></td><td class="code"><pre><span class="typedef"><span class="keyword">data</span> <span class="type">SafeList</span> x a = forall y. <span class="type">Cons</span> a <span class="container">(<span class="type">SafeList</span> <span class="title">y</span> <span class="title">a</span>)</span></span>
+                             |<span class="type">Nil</span>
+</pre></td></tr></table></figure>
+
+<p>そう、この<code>forall</code>は<code>SafeList</code>の宣言の中にあって、<code>y</code>はそこに <em>隠されて</em> いたのです！</p>
+<p><code>forall</code>を使うと、型変数を <em>隠す</em> ことができますです＞ω＜　しかし、その <em>隠した型は基本的に外へ取り出して返すことができない</em> のです</p>
+<p>（この「外へ取り出して返すことができない」という表現を見て、<code>IO</code>モナドのことを思い出した方は、中々の筋のいい方です。なぜなら、<code>forall</code>は<code>IO</code>モナドの元になる<code>ST</code>モナドにも使われているのです！）</p>
+<p>しかし、外側へ返すのではなく内側で処理をするようにすることはできますです(｀・ω・´)</p>
+<p>なので、このようにすればとりあえず<code>tail</code>は実装できますです＞ω＜</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+3
+</pre></td><td class="code"><pre><span class="pragma">{-# LANGUAGE Rank2Types #-}</span>
+<span class="title">tail'</span> :: (<span class="keyword">forall</span> x. <span class="type">SafeList</span> x a -&gt; b) -&gt; <span class="type">SafeList</span> <span class="type">NonEmpty</span> a -&gt; b
+<span class="title">tail'</span> f (<span class="type">Cons</span> _ xs) = f xs
+</pre></td></tr></table></figure>
+
+<p>関数を引数で受け取って、それで<code>tail</code>を処理するというわけです</p>
+<h2 id="o(*≧д≦)oこんな不恰好な<code>tail</code>じゃ満足はしないのです">o(*≧д≦)oこんな不恰好な<code>tail</code>じゃ満足はしないのです</h2>
+<p>さっき作った<code>tail&#39;</code>では、</p>
+<ul>
+<li>型が変わってしまっているし、</li>
+<li>関数に <strong>渡されるリストが<code>Empty</code>か<code>NonEmpty</code>か分からない</strong></li>
+</ul>
+<p>という問題がありますです＞＜;</p>
+<p>特に二つ目は大きな問題だと思うのです！　何せ、このままでは<code>head</code>にも<code>tail</code>にも渡すことができないのです…</p>
+<p>では、それをどうやって解決したらいいのでしょうか？？</p>
+<p>そのためのキーワードが二つありますです。</p>
+<p>一つは「GADTs」で、もう一つは「依存型」です＞ω＜</p>
+<p>まずはGADTsから始めていきますですー＞ω＜</p>
+<h2 id="GADTsとは(・ω・?">GADTsとは(・ω・?</h2>
+<p>GADTsとは、GHC拡張の一つでGeneralized Algebraic Data Typesの略。日本語にすると、一般的代数的データ型のことです(｀・ω・´)</p>
+<p>……なんて言われて、「この言葉論文で見たことある！（進研ゼミ風）」と理解できる人にはこの記事は必要ないと思うので、もう少し踏み込んで解説しますです</p>
+<p>まずは、何はともあれGADTsの簡単な例ですー＞ω＜</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="code"><pre><span class="pragma">{-# LANGUAGE GADTs #-}</span> <span class="comment">-- GADTsを使うためのLANGUAGEプラグマですー＞ω＜</span>
+
+<span class="typedef"><span class="keyword">data</span> <span class="type">Empty</span></span>
+<span class="typedef"><span class="keyword">data</span> <span class="type">NonEmpty</span></span>
+
+<span class="typedef"><span class="keyword">data</span> <span class="type">SafeList</span> x a where</span>
+  <span class="type">Nil</span>  :: <span class="type">SafeList</span> <span class="type">Empty</span> a
+  <span class="type">Cons</span> :: a -&gt; <span class="type">SafeList</span> x a -&gt; <span class="type">SafeList</span> <span class="type">NonEmpty</span> a
+</pre></td></tr></table></figure>
+
+<p>これはさっきの<code>SafeList</code>の定義をGADTsを使って書きなおした例ですー＞ω＜</p>
+<p>さて、肝心の定義が始まるのは6行目からですが、普通に定義した場合と一体何が違っているのでしょうか(・ω・?</p>
+<p>まず最も大きな違いとして、<code>where</code>を用いて、まるで<code>class</code>の定義のようになっているところがありますです(｀・ω・´)</p>
+<p>しかし、これはGADTsの本質ではないのです</p>
+<p>では一体どこが本質になるのでしょうか？？</p>
+<p><code>data</code>以下のインデントされた部分がコンストラクタの定義になっているのは、何となく想像できると思いますです</p>
+<p>実際、この部分は<code>コンストラクタの名前 :: コンストラクタの型</code>という定義になっていますです(｀・ω・´)</p>
+<p>例えば、みなさんのよく知っている<code>Either</code>を敢えてGADTsで書き下したとしたら、</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+3
+</pre></td><td class="code"><pre><span class="typedef"><span class="keyword">data</span> <span class="type">Either</span> l r where</span>
+  <span class="type">Left</span>  :: l -&gt; <span class="type">Either</span> l r
+  <span class="type">Right</span> :: r -&gt; <span class="type">Either</span> l r
+</pre></td></tr></table></figure>
+
+<p>のようになりますです＞ω＜</p>
+<p>と、ここで注目してもらいたいのは、GADTsでは <strong>コンストラクタの返り値の型</strong> まで指定することができる、という点なのです</p>
+<p>当然ながら、コンストラクタの返り値はそのデータ型になりますが、GADTsを使うことでそのパラメーターの型を指定することができるようになるのです！！</p>
+<p>つまり、通常のデータ型とPhantom Typeを使って型安全なリストを定義したときは必要になった、</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+</pre></td><td class="code"><pre><span class="title">nil</span> :: <span class="type">SafeList</span> <span class="type">Empty</span> a
+<span class="title">nil</span> = <span class="type">Nil</span>
+
+<span class="title">cons</span> :: a -&gt; <span class="type">SafeList</span> x a -&gt; <span class="type">SafeList</span> <span class="type">NonEmpty</span> a
+<span class="title">cons</span> x xs = <span class="type">Cons</span> x xs
+</pre></td></tr></table></figure>
+
+<p>といった関数の機能までもGADTsを使った定義、</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+3
+</pre></td><td class="code"><pre><span class="typedef"><span class="keyword">data</span> <span class="type">SafeList</span> x a where</span>
+  <span class="type">Nil</span>  :: <span class="type">SafeList</span> <span class="type">Empty</span> a
+  <span class="type">Cons</span> :: a -&gt; <span class="type">SafeList</span> x a -&gt; <span class="type">SafeList</span> <span class="type">NonEmpty</span> a
+</pre></td></tr></table></figure>
+
+<p>では内包している、というわけなのですー＞ω＜</p>
+<p><code>Nil</code>の返り値部分が<code>SafeList Empty a</code>になっていること、<code>Cons</code>の返り値が<code>SafeList NonEmpty a</code>になっていることからもそれが確認できると思いますですー＞ω＜</p>
+<p>また、GADTsを使った定義では<code>SafeList Boolean a</code>のような意味のない意図しない型が作られてしまうことを回避することもできますですー＞ω＜</p>
+<p>実のことを言えば、前回も本来ならこのGADTsを使って<code>SafeList</code>を定義するべきだったのですが、いきなりこれを使ってしまうと説明することが増えて分かりにくくなってしまうと思い避けることにしたのです(｀・ω・´)</p>
+<h2 id="長さを型にするのですー＞ω＜">長さを型にするのですー＞ω＜</h2>
+<p>前のセクションではGADTsについてお話しましたが、さっきの話だけでは何も解決できそうにありませんです＞＜;</p>
+<p>なので、ここでは前の<code>SafeList</code>の何が問題だったのか、少し踏み込んで考察してみるのです＞ω＜</p>
+<h3 id="<code>SafeList</code>の問題なところ(｀・ω・´)"><code>SafeList</code>の問題なところ(｀・ω・´)</h3>
+<p>前に定義した<code>tail&#39;</code>の問題点として、</p>
+<ul>
+<li>関数に <strong>渡されるリストが<code>Empty</code>か<code>NonEmpty</code>か分からない</strong></li>
+</ul>
+<p>というものがありましたです(｀・ω・´)</p>
+<p>これは、<code>SafeList</code>に付けるタグとして、<code>Empty</code>と<code>NonEmpty</code>という二つのタグしか用意しなかったことが原因となっていますです(｀・ω・´)</p>
+<p>この問題を回避するにはどのようにしたらよいのです？？</p>
+<p>最も簡単な方法としては、</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+</pre></td><td class="code"><pre><span class="typedef"><span class="keyword">data</span> <span class="type">Empty</span></span>
+<span class="typedef"><span class="keyword">data</span> <span class="type">Size1</span></span>
+<span class="typedef"><span class="keyword">data</span> <span class="type">Size2</span></span>
+<span class="typedef"><span class="keyword">data</span> <span class="type">Size3</span></span>
+<span class="comment">-- and more...</span>
+</pre></td></tr></table></figure>
+
+<p>のように複数のタグを用意する方法が思いつくかもしれませんが、これはあまりにナンセンスですし、そもそも上手くいかないのです＞＜;;</p>
+<p>では一体全体、どうしたらよいのでしょうか(・ω・?</p>
+<h3 id="自然数を定義しますです＞ω＜">自然数を定義しますです＞ω＜</h3>
+<p>さてみなさん、少し話が変わりますが、次のようにしてHaskellで自然数を定義したことがある方は多いのではないのでしょうか？？</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+</pre></td><td class="code"><pre><span class="typedef"><span class="keyword">data</span> <span class="type">Nat</span> = <span class="type">Zero</span></span>
+         | <span class="type">Succ</span> <span class="type">Nat</span>
+</pre></td></tr></table></figure>
+
+<p>（0は自然数じゃないとか些細なことは言わないでくださいです）</p>
+<p><code>Zero</code>が単位元で、<code>Succ Nat</code>が<code>Nat</code>の次の数を表わす、という再帰的な構造となっているわけです(｀・ω・´)</p>
+<p>ところで、この<code>Nat</code>を<code>SafeList</code>のタグとして用いることができれば、問題は解決するような気がしませんですか(・ω・?</p>
+<p>要するに、タグを<code>NonEmpty</code>と<code>Empty</code>――あるかないか、という情報しか持たなかった状態から、 <strong>タグ自身がそのリストの長さの情報を持つ</strong> ようにすることができれば、現状の<code>SafeList</code>の問題は解決するのではないでしょうか？？</p>
+<h3 id="<strong>型レベルの</strong>_自然数を定義しますです＞ω＜"><strong>型レベルの</strong> 自然数を定義しますです＞ω＜</h3>
+<p>とは言ったものの、タグにするためには自然数が型によって表現されなければいけないです＞＜; (さっき示した<code>Nat</code>は自然数を表わす型であって、型が自然数のような構造を持っているわけではないのです)</p>
+<p>しかし、そのような型は意外と簡単に定義することができますです(｀・ω・´)</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="code"><pre><span class="comment">-- 自然数のような構造を持った型であることを表わす型クラスですー＞ω＜</span>
+<span class="class"><span class="keyword">class</span> <span class="type">Nat</span> x <span class="keyword">where</span></span>
+
+<span class="typedef"><span class="keyword">data</span> <span class="type">Zero</span></span>
+<span class="typedef"><span class="keyword">data</span> <span class="type">Succ</span> x</span>
+<span class="class">
+<span class="keyword">instance</span> <span class="type">Nat</span> <span class="type">Zero</span> <span class="keyword">where</span></span>
+<span class="class"><span class="keyword">instance</span> <span class="type">Nat</span> x =&gt; <span class="type">Nat</span> <span class="container">(<span class="type">Succ</span> <span class="title">x</span>)</span> <span class="keyword">where</span></span>
+</pre></td></tr></table></figure>
+
+<p>このようにして定義された型は、自然数の何であるか、という情報をその型自身が持っていることになりますです(・ω・、)</p>
+<p>例えば、自然数の<code>2</code>であれば、対応する型は、</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+</pre></td><td class="code"><pre><span class="type">Succ</span> (<span class="type">Succ</span> <span class="type">Zero</span>)
+</pre></td></tr></table></figure>
+
+<p>ですし、<code>5</code>であれば、</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+</pre></td><td class="code"><pre><span class="type">Succ</span> (<span class="type">Succ</span> (<span class="type">Succ</span> (<span class="type">Succ</span> (<span class="type">Succ</span> <span class="type">Zero</span>))))
+</pre></td></tr></table></figure>
+
+<p>となって、一目瞭然で何の数の型か分かるわけですー＞ω＜</p>
+<p>そこらへんが、自然数であることしか分からないさきほどの<code>Nat</code>とは違うところ、というわけなのです！</p>
+<h3 id="<code>SafeList</code>を改良するのです！！"><code>SafeList</code>を改良するのです！！</h3>
+<p>新しくタグとするべき型は手に入れました(｀・ω・´)</p>
+<p>あとはアンパンマンよろしく、「新らしい型よ！」と<code>SafeList</code>に<code>Nat</code>型クラスの型を当てはめればいいわけです＞ω＜</p>
+<p>そのような<code>SafeList</code>の定義はこんな風になりますです</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+3
+</pre></td><td class="code"><pre><span class="typedef"><span class="keyword">data</span> <span class="type">SafeList</span> x a where</span>
+  <span class="type">Nil</span>  :: <span class="type">SafeList</span> <span class="type">Zero</span> a
+  <span class="type">Cons</span> :: <span class="type">Nat</span> x =&gt; a -&gt; <span class="type">SafeList</span> x a -&gt; <span class="type">SafeList</span> (<span class="type">Succ</span> x) a
+</pre></td></tr></table></figure>
+
+<p>ここで注目すべきは、コンストラクタ<code>Cons</code>の返り値です！！<br>タグとなる型の部分が<code>Succ x</code>となっていて、<code>Cons</code>によって要素数が1増えることが型に表われていますです！！</p>
+<p>これは中々興味深いのではないのでしょうか(・ω・?</p>
+<h3 id="最後に、目的の<code>tail</code>ですー＞ω＜">最後に、目的の<code>tail</code>ですー＞ω＜</h3>
+<p>では、最後の仕上げとして<code>tail</code>を定義しますですー＞ω＜</p>
+<p>これは簡単ですー＞ω＜</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre>1
+2
+</pre></td><td class="code"><pre><span class="title">tail</span> :: <span class="type">Nat</span> x =&gt; <span class="type">SafeList</span> (<span class="type">Succ</span> x) a -&gt; <span class="type">SafeList</span> x a
+<span class="title">tail</span> (<span class="type">Cons</span> _ xs) = xs
+</pre></td></tr></table></figure>
+
+<p>これも、引数のタグが<code>Succ x</code>に対して、返り値のタグが<code>x</code>となっていて、要素数が1減ることが示されていますですー＞ω＜</p>
+<p>では、ついでに<code>head</code>も定義して、前回と同じくこれらの定義が上手く動くのか試してみましょー＞ω＜</p>
+<figure class="highlight haskell"><figcaption><span>SafeList_by_GADTs.hs</span></figcaption><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+</pre></td><td class="code"><pre><span class="pragma">{-# LANGUAGE GADTs #-}</span>
+<span class="module"><span class="keyword">module</span> Main <span class="keyword">where</span></span>
+<span class="import"><span class="keyword">import</span> Prelude <span class="keyword">hiding</span> <span class="container">(<span class="title">head</span>, <span class="title">tail</span>, <span class="title">foldr</span>)</span></span>
+
+<span class="comment">-- 自然数のような構造を持った型であることを表わす型クラスですー＞ω＜</span>
+<span class="class"><span class="keyword">class</span> <span class="type">Nat</span> x <span class="keyword">where</span></span>
+
+<span class="typedef"><span class="keyword">data</span> <span class="type">Zero</span></span>
+<span class="typedef"><span class="keyword">data</span> <span class="type">Succ</span> x</span>
+<span class="class">
+<span class="keyword">instance</span> <span class="type">Nat</span> <span class="type">Zero</span> <span class="keyword">where</span></span>
+<span class="class"><span class="keyword">instance</span> <span class="type">Nat</span> x =&gt; <span class="type">Nat</span> <span class="container">(<span class="type">Succ</span> <span class="title">x</span>)</span> <span class="keyword">where</span></span>
+
+<span class="typedef"><span class="keyword">data</span> <span class="type">SafeList</span> x a where</span>
+  <span class="type">Nil</span>  :: <span class="type">SafeList</span> <span class="type">Zero</span> a
+  <span class="type">Cons</span> :: <span class="type">Nat</span> x =&gt; a -&gt; <span class="type">SafeList</span> x a -&gt; <span class="type">SafeList</span> (<span class="type">Succ</span> x) a
+
+<span class="title">head</span> :: <span class="type">Nat</span> x =&gt; <span class="type">SafeList</span> (<span class="type">Succ</span> x) a -&gt; a
+<span class="title">head</span> (<span class="type">Cons</span> x _) = x
+
+<span class="title">tail</span> :: <span class="type">Nat</span> x =&gt; <span class="type">SafeList</span> (<span class="type">Succ</span> x) a -&gt; <span class="type">SafeList</span> x a
+<span class="title">tail</span> (<span class="type">Cons</span> _ xs) = xs
+
+<span class="title">main</span> :: <span class="type">IO</span> ()
+<span class="title">main</span> = <span class="keyword">do</span>
+  print $ head (<span class="type">Cons</span> <span class="string">"＞ω＜"</span> <span class="type">Nil</span>)                              <span class="comment">-- これはOKですー＞ω＜</span>
+  print $ head <span class="type">Nil</span>                                              <span class="comment">-- これはコンパイルエラーです(｀・ω・´)</span>
+  print $ head (tail (<span class="type">Cons</span> <span class="string">"(｀・ω・´)"</span> (<span class="type">Cons</span> <span class="string">"＞ω＜"</span> <span class="type">Nil</span>))) <span class="comment">-- これもOKですー＞ω＜</span>
+  print $ head (tail (<span class="type">Cons</span> <span class="string">"＞ω＜"</span> <span class="type">Nil</span>))                       <span class="comment">-- これもコンパイルエラーです(｀・ω・´)</span>
+</pre></td></tr></table></figure>
+
+
+<p>そして、これをコンパイルしてみると……、</p>
+<pre><code>SafeList_by_GADTs.hs:<span class="number">27</span>:<span class="number">16</span>:
+    Couldn<span class="comment">'t match type `Zero' with `Succ x0'</span>
+    Expected type: SafeList (Succ x0) a0
+      Actual type: SafeList Zero a0
+    <span class="keyword">In</span> the first argument <span class="keyword">of</span> `head<span class="comment">', namely `Nil'</span>
+    <span class="keyword">In</span> the second argument <span class="keyword">of</span> `($)<span class="comment">', namely `head Nil'</span>
+    <span class="keyword">In</span> a stmt <span class="keyword">of</span> a <span class="comment">'do' block: print $ head Nil</span>
+
+SafeList_by_GADTs.hs:<span class="number">29</span>:<span class="number">34</span>:
+    Couldn<span class="comment">'t match type `Zero' with `Succ x1'</span>
+    Expected type: SafeList (Succ x1) [<span class="built_in">Char</span>]
+      Actual type: SafeList Zero [<span class="built_in">Char</span>]
+    <span class="keyword">In</span> the second argument <span class="keyword">of</span> `Cons<span class="comment">', namely `Nil'</span>
+    <span class="keyword">In</span> the first argument <span class="keyword">of</span> `tail<span class="comment">', namely</span>
+      `(Cons <span class="string">"\65310\969\65308"</span> Nil)<span class="comment">'</span>
+    <span class="keyword">In</span> the first argument <span class="keyword">of</span> `head<span class="comment">', namely</span>
+      `(tail (Cons <span class="string">"\65310\969\65308"</span> Nil))<span class="comment">'</span>
+</code></pre><p>きました＞ω＜！！</p>
+<p><code>tail</code>の部分でもキチンとエラーが表示されていますです＞ω＜</p>
+<p>これで今回の目的は大方果たせたのです＞ω＜</p>
+<h3 id="ところで、依存型とは何だったのです？？">ところで、依存型とは何だったのです？？</h3>
+<p>途中でキーワードとか語っておきながら全く説明がありませんでした、依存型さん……＞＜;</p>
+<p>ですが、わたしたちはもうこの依存型を存分に使っていますです！！</p>
+<p>どういうことかって(・ω・?</p>
+<p>思い出してみて欲しいのです！！<br>わたしたちは、<code>SafeList</code>に要素の数を <strong>依存</strong> させて、型安全なリストを作りました(｀・ω・´)</p>
+<p>このように、型に値を依存させることを、依存型と言いますです＞ω＜<br>（Haskellの場合は完全に値を型にすることはできないので、値のような型ということになりますですが……）</p>
+<p>言っていることは何だか難しそうですが、今回作った<code>SafeList</code>型そのものだと思えば理解できるはずですー＞ω＜</p>
+<h2 id="結びに……">結びに……</h2>
+<p>前回の記事も含めて読んで下さったみなさん<br>今回の記事だけでも読んで下さったみなさん</p>
+<p>こんな長い記事たちにお付き合いいただきどうもありがとうございましたですー＞ω＜</p>
+<p>みなさまはこの記事たちを読んで、型についての認識はどのようになりましたでしょうか？？</p>
+<p>「依存型を使ってコンパイル時に見つけられるバグを増やしたい」なんて思ってもらえたなら、わたしとして本望の限りですー＞ω＜</p>
+<p>また、HaskellやOCamlなどのプログラムを書くのが上手な人がよく言う言葉に、</p>
+<p>「 <strong>コンパイルは証明だ</strong> 」</p>
+<p>というものがありますです</p>
+<p>これは、カリーハワード同型（<a href="http://ja.wikipedia.org/wiki/カリー＝ハワード同型対応" target="_blank">Wikipedia参照</a>）のことを指して言っているのだと思われますが、わたしにはこの言葉は、</p>
+<p>「 <strong>コンパイルは（正しく動くことの）証明だ</strong> 」</p>
+<p>と言っているように思えてならないのですー＞ω＜</p>
+<p>コンパイラが「OK」と言ってくれれば、少なくとも型レベルでは安全なプログラムであることが保証されるわけ、なのですのでー＞ω＜</p>
+<p>ちなみに、前回や今回の内容は、言語によって制限がある程度はあると思いますが、別の言語でも応用することは十分にできるはずです</p>
+<p>特に、ScalaやOCamlと言った言語ならほぼ完璧に再現することができるはずですー＞ω＜</p>
+<p>JavaやC#でも少し大変ですが（そしてキャストを使いたくなりますが）、幽霊型を使うことはできるはずです＞＜;</p>
+<p>というわけでみなさん、コンパイルが通らないからって<code>unsafeCoerce</code>で型を騙したりせず、素敵な型安全ライフをー、なのですー＞ω＜</p>
+<h2 id="参考や謝辞などですー＞ω＜">参考や謝辞などですー＞ω＜</h2>
+<p>まず、<a href="https://twitter.com/func_hs" target="_blank">@func_hs</a><br>さんや<a href="https://twitter.com/fumieval" target="_blank">@fumieval</a><br>さん、<a href="https://twitter.com/pasberth" target="_blank">@pasberth</a><br>さんなど（ぱっと思い出せた方だけしか上げられなくてもうしわけないです…）からは、数え切れないほどの知識とインスピレーションを頂きましたです</p>
+<p>他には、この記事や前回の記事を書く際の資料として、</p>
+<ul>
+<li>Phantom Type in Scala - <a href="http://www.slideshare.net/maedaunderscore/phatom-type-14612078" target="_blank">http://www.slideshare.net/maedaunderscore/phatom-type-14612078</a></li>
+<li>GADTs使ってみた - Faith and Brave - C++で遊ぼう - <a href="http://faithandbrave.hateblo.jp/entry/20111201/1322718742" target="_blank">http://faithandbrave.hateblo.jp/entry/20111201/1322718742</a></li>
+</ul>
+<p>などを参考にさせていただきました（これももっとあったはずなのですが、特に整理していなかったので、思い出し次第追加していきたいです＞ω＜）</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/programming/">programming</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/Haskell/">Haskell</a>, <a href="/tags/TypeSafe/">TypeSafe</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">Comments</h1>
+
+  
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:kagamilove0707.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">Recent Posts</h3>
+  <ul class="entry">
+    
+      <li>
+        <a href="/everyday/2014/03/21/hello-new-blog-world/">ブログを作り直したのです(｀・ω・´)</a>
+      </li>
+    
+      <li>
+        <a href="/programming/2014/02/21/gadts-and-dependent-type/">型安全なリストを作るのです(｀・ω・´) ～ その2、GADTsと依存型＞ω＜</a>
+      </li>
+    
+      <li>
+        <a href="/programming/2014/02/20/about-phantom-type/">型安全なリストを作るのです(｀・ω・´) ～ その1、Phantom Type（幽霊型）入門ですー＞ω＜</a>
+      </li>
+    
+      <li>
+        <a href="/programming/2013/06/23/add-safe-list/">型安全なリストに対する補足とGADTsの話ですー＞ω＜</a>
+      </li>
+    
+      <li>
+        <a href="/programming/2013/05/30/about-phantom-type/">Phantom Type（幽霊型）入門ですー＞ω＜</a>
+      </li>
+    
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">Categories</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/everyday/">everyday</a><small>1</small></li>
+  
+    <li><a href="/categories/programming/">programming</a><small>4</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">Tags</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/Haskell/">Haskell</a><small>4</small></li>
+  
+    <li><a href="/tags/Hexo/">Hexo</a><small>1</small></li>
+  
+    <li><a href="/tags/Node.js/">Node.js</a><small>1</small></li>
+  
+    <li><a href="/tags/TypeSafe/">TypeSafe</a><small>2</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 kagamilove0707
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+<script type="text/javascript">
+var disqus_shortname = 'moonshadow';
+
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+</script>
+
+
+
+
+</body>
+</html>
